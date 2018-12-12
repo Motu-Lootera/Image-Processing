@@ -6,13 +6,14 @@
 using namespace std;
 using namespace cv;
 
-Mat a(100,100,CV_8UC1,Scalar(255));
+Mat a=imread("binary1_shrink.png",0);
 
 //bool vis[a.rows][a.cols]={};
 //bool add[a.rows][a.cols]={};
 
 //bool vis[100][100]={};
-bool ad[100][100]={};
+const int row=a.rows,col=a.cols;
+bool ad[209][400]={};
 
 struct node
 {
@@ -26,6 +27,8 @@ bool isValid(int i,int j)
 	if(i<0||j<0||i>=a.rows||j>=a.cols)
 		return 0;
 	if(ad[i][j])
+		return 0;
+	if(a.at<uchar>(i,j)!=255)
 		return 0;
 	return 1;
 }
@@ -59,27 +62,37 @@ void add_qu(node x)
 }
 
 int main()
-{
-	int i=0,j=0;
-	node curr={i,j};
-	qu.push(curr);
-	ad[i][j]=1;
-	//vis[50][50]=1;
-
-	namedWindow("window1",WINDOW_NORMAL);
-	while(!qu.empty())
+{	int counter=0;
+	int color=50;
+	for(int i=0;i<a.rows;i++)
 	{
-		curr=qu.front();
-		qu.pop();
-		add_qu(curr);
+		for(int j=0;j<a.cols;j++)
+		{
+			if(a.at<uchar>(i,j)==255)
+			{
+				node curr={i,j};
+				qu.push(curr);
+				ad[i][j]=1;
+				color=(color+68)%150;
+				//vis[50][50]=1;
 
-		//vis[curr.i][curr.j]=1;
+				namedWindow("window1",WINDOW_NORMAL);
+				while(!qu.empty())	
+				{
+					curr=qu.front();
+					qu.pop();
+					add_qu(curr);
 
-		a.at<uchar>(curr.i,curr.j)=0;
-		imshow("window1",a);
-		waitKey(1);	
+					a.at<uchar>(curr.i,curr.j)=color;
+					imshow("window1",a);
+					waitKey(1);	
+				}
+				counter++;
+			}
+		}
 	}
-
+	
+	cout<<counter<<endl;
 	imshow("window1",a);
-	waitKey(10000);
+	waitKey(0);
 }
